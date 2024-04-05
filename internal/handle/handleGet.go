@@ -29,6 +29,18 @@ type People struct {
 	Patronymic string `json:"patronymic"`
 }
 
+// GetCars godoc
+// @Summary Get a list of cars
+// @Description Get a paginated list of cars with optional filtering by field and value
+// @Tags cars
+// @Param page query int false "Page number"
+// @Param filterField path string false "Filter field name"
+// @Param valueField path string false "Filter value"
+// @Produce json
+// @Success 200 {array} Car
+// @Failure 400 {string} string "Invalid request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /cars [get]
 func GetCars(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	page, err := strconv.Atoi(r.URL.Query().Get("page"))
 	if err != nil {

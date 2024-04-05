@@ -10,6 +10,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// DeleteCars godoc
+// @Summary Delete a car by ID
+// @Description Delete a car from the database by its ID
+// @Tags cars
+// @Param id path int true "Car ID"
+// @Success 204 "No Content"
+// @Failure 400 {string} string "Invalid ID"
+// @Failure 404 {string} string "Resource not found"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /cars/{id} [delete]
 func DeleteCars(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -37,6 +47,7 @@ func DeleteCars(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+	w.Write([]byte("Car deleted successfully\n"))
 }
 
 func getExistingIDs(db *sql.DB) (map[int]struct{}, error) {

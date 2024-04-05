@@ -1,3 +1,5 @@
+// http://localhost:8080/swagger/index.html
+
 package main
 
 import (
@@ -16,6 +18,10 @@ import (
 	_ "github.com/lib/pq"
 
 	h "effectiveMobileGo/internal/handle"
+
+	_ "effectiveMobileGo/docs"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func init() {
@@ -26,21 +32,38 @@ func init() {
 
 }
 
+// @title Cars API
+// @description This is a sample API for managing cars and their owners.
+// @version 1.0
+// @host localhost:8080
 func main() {
 	db := initDB()
 	defer db.Close()
 
 	router := mux.NewRouter()
+
+	// GET /cars - Get all cars
 	router.HandleFunc("/cars",
 		func(w http.ResponseWriter, r *http.Request) { h.GetCars(w, r, db) }).Methods("GET")
+
+	// GET /cars/{filterField}/{valueField} - Get cars by filter
 	router.HandleFunc("/cars/{filterField}/{valueField}",
 		func(w http.ResponseWriter, r *http.Request) { h.GetCars(w, r, db) }).Methods("GET")
+
+	// DELETE /cars/{id} - Delete a car by ID
 	router.HandleFunc("/cars/{id}",
 		func(w http.ResponseWriter, r *http.Request) { h.DeleteCars(w, r, db) }).Methods("DELETE")
+
+	// PATCH /cars/{id} - Update a car by ID
 	router.HandleFunc("/cars/{id}",
 		func(w http.ResponseWriter, r *http.Request) { h.PatchCars(w, r, db) }).Methods("PATCH")
+
+	// POST /cars - Create a new cars
 	router.HandleFunc("/cars",
 		func(w http.ResponseWriter, r *http.Request) { h.PostCars(w, r, db) }).Methods("POST")
+
+	// Swagger Docs
+	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -78,7 +101,6 @@ func initDB() *sql.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// defer m.Close()
 
 	row := db.QueryRow("SELECT COUNT( * ) FROM cars")
 	var count int

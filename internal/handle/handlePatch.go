@@ -12,6 +12,18 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// PatchCars godoc
+// @Summary Update a car by ID
+// @Description Update a car in the database by its ID
+// @Tags cars
+// @Accept json
+// @Param id path int true "Car ID"
+// @Param car body Car true "Car object"
+// @Produce json
+// @Success 200 {string} string "Car updated successfully"
+// @Failure 400 {string} string "Invalid ID or request body"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /cars/{id} [patch]
 func PatchCars(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -74,6 +86,7 @@ func PatchCars(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Car updated successfully\n"))
 }
 
 func postgresQuery(db *sql.DB, updateQuery string, params []interface{}) error {

@@ -1,0 +1,131 @@
+definitions:
+  main.Car:
+    properties:
+      id:
+        type: integer
+      mark:
+        type: string
+      model:
+        type: string
+      owner:
+        $ref: '#/definitions/main.People'
+      regNum:
+        type: string
+      year:
+        type: integer
+    type: object
+  main.People:
+    properties:
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a sample API for managing cars and their owners.
+  title: Cars API
+  version: "1.0"
+paths:
+  /cars:
+    get:
+      description: Get a paginated list of cars with optional filtering by field and
+        value
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Filter field name
+        in: path
+        name: filterField
+        type: string
+      - description: Filter value
+        in: path
+        name: valueField
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Car'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get a list of cars
+      tags:
+      - cars
+  /cars/{id}:
+    delete:
+      description: Delete a car from the database by its ID
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid ID
+          schema:
+            type: string
+        "404":
+          description: Resource not found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete a car by ID
+      tags:
+      - cars
+    patch:
+      consumes:
+      - application/json
+      description: Update a car in the database by its ID
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Car object
+        in: body
+        name: car
+        required: true
+        schema:
+          $ref: '#/definitions/main.Car'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Car updated successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid ID or request body
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update a car by ID
+      tags:
+      - cars
+swagger: "2.0"
