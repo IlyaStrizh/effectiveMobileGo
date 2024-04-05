@@ -15,7 +15,7 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 
-	h "effectiveMobileGo/internal"
+	h "effectiveMobileGo/internal/handle"
 )
 
 func init() {
@@ -39,6 +39,8 @@ func main() {
 		func(w http.ResponseWriter, r *http.Request) { h.DeleteCars(w, r, db) }).Methods("DELETE")
 	router.HandleFunc("/cars/{id}",
 		func(w http.ResponseWriter, r *http.Request) { h.PatchCars(w, r, db) }).Methods("PATCH")
+	router.HandleFunc("/cars",
+		func(w http.ResponseWriter, r *http.Request) { h.PostCars(w, r, db) }).Methods("POST")
 
 	port := os.Getenv("PORT")
 	if port == "" {

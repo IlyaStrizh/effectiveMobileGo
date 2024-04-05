@@ -1,30 +1,86 @@
-// curl -X PATCH -H "Content-Type: application/json" --data '{"id": 1, "regNum": "Новый регистрационный номер", "owner": {"name": "Новое имя владельца"}}' "http://localhost:8080/cars/1"
+// curl -X PATCH -H "Content-Type: application/json" --data '{"regNum": "Новый регистрационный номер", "owner": {"name": "Новое имя владельца"}}' "http://localhost:8080/cars/1"
 
 package handle
 
-//import (
-//	"database/sql"
-//	"encoding/json"
-//	"log"
-//	"net/http"
-//	"strconv"
-//
-//	"github.com/gorilla/mux"
-//)
-//
-//func PatchCars(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-//	vars := mux.Vars(r)
-//	id, err := strconv.Atoi(vars["id"])
-//
-//	if err != nil {
-//		http.Error(w, "Invalid ID", http.StatusBadRequest)
-//		return
-//	}
-//
-//	var car Car
-//	err = json.NewDecoder(r.Body).Decode(&car)
-//	if err != nil {
-//		log.Printf("Error decoding request body: %v", err)
-//	}
-//
-//}
+import (
+	"database/sql"
+	"encoding/json"
+	"log"
+	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
+)
+
+func PatchCars(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	var updateData map[string]interface{}
+	err = json.NewDecoder(r.Body).Decode(&updateData)
+	if err != nil {
+		log.Printf("Error decoding request body: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	updateQueryCars := "UPDATE cars SET"
+	params := []interface{}{}
+	index := 2
+
+	params = append(params, id)
+	for field, value := range updateData {
+		if val, ok := value.(map[string]interface{}); ok && field == "owner" {
+			updateQueryPeople := "UPDATE people SET"
+			paramsPeople := []interface{}{}
+			indexPeople := 2
+
+			paramsPeople = append(paramsPeople, id)
+			for fieldPeople, valuePeople := range val {
+				updateQueryPeople += " " + fieldPeople + " = $" + strconv.Itoa(indexPeople) + ","
+				paramsPeople = append(paramsPeople, valuePeople)
+				indexPeople++
+			}
+			updateQueryPeople = updateQueryPeople[:len(updateQueryPeople)-1]
+			updateQueryPeople += " WHERE car_id = $1"
+
+			err = postgresQuery(db, updateQueryPeople, paramsPeople)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Printf("Error updating base: %v", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		} else {
+			updateQueryCars += " " + field + " = $" + strconv.Itoa(index) + ","
+			params = append(params, value)
+			index++
+		}
+	}
+
+	updateQueryCars = updateQueryCars[:len(updateQueryCars)-1]
+	updateQueryCars += " WHERE id = $1"
+
+	err = postgresQuery(db, updateQueryCars, params)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Error updating base: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func postgresQuery(db *sql.DB, updateQuery string, params []interface{}) error {
+	_, err := db.Exec(updateQuery, params...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

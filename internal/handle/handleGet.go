@@ -83,7 +83,7 @@ func parseField(db *sql.DB, page int, field string, value string) (*sql.Rows, in
 	switch field {
 	case "":
 		rows, err = db.Query(
-			`SELECT c.id, c.reg_num, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
+			`SELECT c.id, c.regNum, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
 			FROM cars c 
 			JOIN people p ON c.id = p.car_id 
 			LIMIT $1 OFFSET $2`,
@@ -91,7 +91,7 @@ func parseField(db *sql.DB, page int, field string, value string) (*sql.Rows, in
 		err2 = db.QueryRow("SELECT count(*) FROM cars").Scan(&count)
 	case "id":
 		rows, err = db.Query(
-			`SELECT c.id, c.reg_num, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
+			`SELECT c.id, c.regNum, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
 			FROM cars c 
 			JOIN people p ON c.id = p.car_id 
 			WHERE c.id = $1 LIMIT $2 OFFSET $3`,
@@ -100,16 +100,16 @@ func parseField(db *sql.DB, page int, field string, value string) (*sql.Rows, in
 		    WHERE c.id = $1`, value).Scan(&count)
 	case "regNum":
 		rows, err = db.Query(
-			`SELECT c.id, c.reg_num, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
+			`SELECT c.id, c.regNum, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
 			FROM cars c 
 			JOIN people p ON c.id = p.car_id 
-			WHERE c.reg_num = $1 LIMIT $2 OFFSET $3`,
+			WHERE c.regNum = $1 LIMIT $2 OFFSET $3`,
 			value, LIMIT, offset)
 		err2 = db.QueryRow(`SELECT count(*) FROM cars c 
-			WHERE c.reg_num = $1`, value).Scan(&count)
+			WHERE c.regNum = $1`, value).Scan(&count)
 	case "mark":
 		rows, err = db.Query(
-			`SELECT c.id, c.reg_num, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
+			`SELECT c.id, c.regNum, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
 			FROM cars c 
 			JOIN people p ON c.id = p.car_id 
 			WHERE c.mark = $1 LIMIT $2 OFFSET $3`,
@@ -118,7 +118,7 @@ func parseField(db *sql.DB, page int, field string, value string) (*sql.Rows, in
 		    WHERE c.mark = $1`, value).Scan(&count)
 	case "model":
 		rows, err = db.Query(
-			`SELECT c.id, c.reg_num, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
+			`SELECT c.id, c.regNum, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
 			FROM cars c 
 			JOIN people p ON c.id = p.car_id
 			WHERE c.model = $1 LIMIT $2 OFFSET $3`,
@@ -127,7 +127,7 @@ func parseField(db *sql.DB, page int, field string, value string) (*sql.Rows, in
 			WHERE c.model = $1`, value).Scan(&count)
 	case "year":
 		rows, err = db.Query(
-			`SELECT c.id, c.reg_num, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
+			`SELECT c.id, c.regNum, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
 			FROM cars c 
 			JOIN people p ON c.id = p.car_id
 			WHERE c.year = $1 LIMIT $2 OFFSET $3`,
@@ -136,7 +136,7 @@ func parseField(db *sql.DB, page int, field string, value string) (*sql.Rows, in
 			WHERE c.year = $1`, value).Scan(&count)
 	case "name":
 		rows, err = db.Query(
-			`SELECT c.id, c.reg_num, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
+			`SELECT c.id, c.regNum, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
 			FROM cars c 
 			JOIN people p ON c.id = p.car_id
 			WHERE p.name = $1 LIMIT $2 OFFSET $3`,
@@ -145,7 +145,7 @@ func parseField(db *sql.DB, page int, field string, value string) (*sql.Rows, in
 			JOIN people p ON c.id = p.car_id WHERE p.name = $1`, value).Scan(&count)
 	case "surname":
 		rows, err = db.Query(
-			`SELECT c.id, c.reg_num, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
+			`SELECT c.id, c.regNum, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
 			FROM cars c 
 			JOIN people p ON c.id = p.car_id
 			WHERE p.surname = $1 LIMIT $2 OFFSET $3`,
@@ -154,7 +154,7 @@ func parseField(db *sql.DB, page int, field string, value string) (*sql.Rows, in
 			JOIN people p ON c.id = p.car_id WHERE p.surname = $1`, value).Scan(&count)
 	case "patronymic":
 		rows, err = db.Query(
-			`SELECT c.id, c.reg_num, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
+			`SELECT c.id, c.regNum, c.mark, c.model, c.year, p.name, p.surname, p.patronymic 
 			FROM cars c 
 			JOIN people p ON c.id = p.car_id
 			WHERE p.patronymic = $1 LIMIT $2 OFFSET $3`,
@@ -179,7 +179,7 @@ func parseField(db *sql.DB, page int, field string, value string) (*sql.Rows, in
 func renderPage(w http.ResponseWriter, cars []Car, total, currentPage int) {
 	totalPages := (total + 9) / 10
 
-	if currentPage < 0 || currentPage > totalPages {
+	if currentPage < 0 || currentPage >= totalPages {
 		http.Error(w, fmt.Sprintf("Invalid page: %v", currentPage), http.StatusNotFound)
 		return
 	}
